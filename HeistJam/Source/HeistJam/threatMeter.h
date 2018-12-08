@@ -26,7 +26,9 @@ public:
 		void ThreatLimitReached();
 
 
-
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnThreatChangedSignature, float , newThreat);
+	UPROPERTY(BlueprintAssignable)
+		FOnThreatChangedSignature OnThreatChanged;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

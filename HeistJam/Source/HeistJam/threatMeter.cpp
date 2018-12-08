@@ -17,7 +17,6 @@ void AthreatMeter::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 }
 
 void AthreatMeter::ThreatLimitReached() {
@@ -28,6 +27,7 @@ void AthreatMeter::ThreatLimitReached() {
 	}
 void AthreatMeter::IncreaseThreat(float raiseAmount) {
 	threat += raiseAmount;
+	OnThreatChanged.Broadcast(threat);
 }
 
 
