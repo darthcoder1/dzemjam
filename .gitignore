@@ -84,3 +84,6 @@ HeistJam/Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 HeistJam/DerivedDataCache/*
+
+# Custom additions
+HeistJam/enc_temp_folder/**
