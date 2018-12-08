@@ -29,6 +29,10 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnThreatChangedSignature, float , newThreat);
 	UPROPERTY(BlueprintAssignable)
 		FOnThreatChangedSignature OnThreatChanged;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAlarmTriggerdSignature);
+	UPROPERTY(BlueprintAssignable)
+		FOnAlarmTriggerdSignature OnAlarmTriggered;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

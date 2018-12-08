@@ -22,7 +22,7 @@ void AthreatMeter::BeginPlay()
 void AthreatMeter::ThreatLimitReached() {
 	if (threat >= threatLimit) 
 		{
-		//alarm
+		OnAlarmTriggered.Broadcast();
 		}
 	}
 void AthreatMeter::IncreaseThreat(float raiseAmount) {
