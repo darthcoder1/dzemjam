@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "HeistWeapon.h"
+#include "HeistJam.h"
 #include "GameFramework/Character.h"
 #include "HeistJamCharacter.generated.h"
 
@@ -23,6 +24,9 @@ public:
 
 	UPROPERTY(Transient)
 	AHeistWeapon* WeaponInstance;
+
+	UPROPERTY(EditDefaultsOnly)
+	ECharacterClass CharacterType;
 
 	UPROPERTY(BlueprintReadWrite)
 	float Health;
