@@ -72,7 +72,7 @@ protected:
 	void HandleInput(float DeltaTime);
 	void HandleFusion(float DeltaTime);
 
-	void InitiateFusion();
+	void InitiateFusion(AHeistJamCharacter* fusionTarget);
 	void AbortFusion();
 
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -90,6 +90,8 @@ protected:
 	UClass* GetFusionPawnClass(ECharacterClass charClass1, ECharacterClass charClass2);
 
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+
+	bool CanInitiateFusion();
 
 	/** Input handlers  */
 	void OnMoveX();

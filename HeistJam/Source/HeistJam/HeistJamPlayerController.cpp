@@ -34,6 +34,11 @@ void AHeistJamPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProp
 	DOREPLIFETIME(AHeistJamPlayerController, FusionPawn);
 }
 
+bool AHeistJamPlayerController::CanInitiateFusion()
+{
+	return true;
+}
+
 void AHeistJamPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
@@ -63,16 +68,19 @@ void AHeistJamPlayerController::HandleInput(float DeltaTime)
 void AHeistJamPlayerController::HandleFusion(float DeltaTime)
 {
 	AHeistJamCharacter* me = GetCharacterPawn();
+	if (!me)
+		return;
 
-	if (me != NULL && me->RequestsFusionWith != NULL && me == me->RequestsFusionWith->RequestsFusionWith && InFusionWith == NULL)
+	// This player is not in another fusion and both players have requested a Fusion
+	if (me->RequestsFusionWith != NULL && me == me->RequestsFusionWith->RequestsFusionWith && InFusionWith == NULL)
 	{
 		UE_LOG(LogHeistController, Log, TEXT("Fusion for %s and %s initiated"), *me->GetName(), *me->RequestsFusionWith->GetName());
-		InFusionWith = me->RequestsFusionWith;
 
-		InitiateFusion();
+		InitiateFusion(me->RequestsFusionWith);
 		SERVER_InitiateFusion(InFusionWith);
 	}
-	else if (me != NULL && InFusionWith && (me->RequestsFusionWith == NULL || InFusionWith->RequestsFusionWith != me))
+	// A Fusion is active already, but one of the characters canceled the fusion request
+	else if (InFusionWith && (me->RequestsFusionWith == NULL || InFusionWith->RequestsFusionWith != me))
 	{
 		AbortFusion();
 		SERVER_AbortFusion();
@@ -81,13 +89,16 @@ void AHeistJamPlayerController::HandleFusion(float DeltaTime)
 	}
 }
 
-void AHeistJamPlayerController::InitiateFusion()
+void AHeistJamPlayerController::InitiateFusion(AHeistJamCharacter* fusionTarget)
 {
 	GetPawn()->SetActorEnableCollision(false);
+	GetPawn()->SetActorHiddenInGame(true);
 
+	InFusionWith = fusionTarget;
 	if (InFusionWith)
 	{
 		InFusionWith->SetActorEnableCollision(false);
+		InFusionWith->SetActorHiddenInGame(true);
 	}
 }
 
@@ -98,6 +109,7 @@ void AHeistJamPlayerController::SERVER_InitiateFusion_Implementation(AHeistJamCh
 	InFusionWith = fusionWith;
 
 	GetPawn()->SetActorEnableCollision(false);
+	GetPawn()->SetActorHiddenInGame(true);
 	
 	if (s_stupidHack != NULL)
 	{
@@ -145,6 +157,7 @@ void AHeistJamPlayerController::AbortFusion()
 	GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	GetPawn()->SetActorLocation(GetPawn()->GetActorLocation() + offset * 10.0f + FVector::UpVector * 50.0f);
 	GetPawn()->SetActorEnableCollision(true);
+	GetPawn()->SetActorHiddenInGame(false);
 
 	if (InFusionWith)
 	{
@@ -152,6 +165,7 @@ void AHeistJamPlayerController::AbortFusion()
 		InFusionWith->SetActorLocation(InFusionWith->GetActorLocation() + offset * -10.0f + FVector::UpVector * 50.0f);
 		InFusionWith->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		InFusionWith->SetActorEnableCollision(true);
+		InFusionWith->SetActorHiddenInGame(false);
 	}
 }
 
@@ -164,15 +178,18 @@ void AHeistJamPlayerController::SERVER_AbortFusion_Implementation()
 		FusionPawn->SetActorEnableCollision(false);
 	}
 
-	GetPawn()->SetActorEnableCollision(true);
+	
 	GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	GetPawn()->SetActorLocation(GetPawn()->GetActorLocation() + offset * 10.0f + FVector::UpVector * 50.0f);
+	GetPawn()->SetActorEnableCollision(true);
+	GetPawn()->SetActorHiddenInGame(false);
 	
 	if (InFusionWith)
 	{
-		InFusionWith->SetActorEnableCollision(true);
 		InFusionWith->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		InFusionWith->SetActorLocation(InFusionWith->GetActorLocation() + offset * -10.0f + FVector::UpVector * 50.0f);
+		InFusionWith->SetActorEnableCollision(true);
+		InFusionWith->SetActorHiddenInGame(false);
 	}
 
 	if (FusionPawn)
@@ -301,25 +318,23 @@ void AHeistJamPlayerController::OnFusionPressed()
 {
 	AHeistJamCharacter* me = GetCharacterPawn();
 
-	if (me && me->RequestsFusionWith == NULL)
+	if (me)
 	{
 		AHeistJamCharacter* nearestNeighbor = GetNearestOtherPawn(MaxFusionDistance);
 		me->SERVER_RequestFusionWith(nearestNeighbor);
-		
-		if (me->RequestsFusionWith)
-		{
-			UE_LOG(LogHeistController, Log, TEXT("Request Fusion with %s"), *me->RequestsFusionWith->GetName());
-		}
-	}
-	else if (me)
-	{
-		me->SERVER_RequestFusionWith(NULL);
-		UE_LOG(LogHeistController, Log, TEXT("Disable fusion request"));
+		UE_LOG(LogHeistController, Log, TEXT("SERVER_RequestFusionWith(%s)"), nearestNeighbor ?
+			*nearestNeighbor->GetName() : TEXT("NULL"));
 	}
 }
 
 void AHeistJamPlayerController::OnFusionReleased()
 {
+	AHeistJamCharacter* me = GetCharacterPawn();
 	
+	if (me)
+	{
+		me->SERVER_RequestFusionWith(NULL);
+		UE_LOG(LogHeistController, Log, TEXT("SERVER_RequestFusionWith(NULL)"));
+	}
 }
 
