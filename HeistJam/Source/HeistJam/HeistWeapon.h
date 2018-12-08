@@ -21,6 +21,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float RefireRate;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Damage;
+
 	float timeSinceLastShot;
 
 	bool bIsFiring;
