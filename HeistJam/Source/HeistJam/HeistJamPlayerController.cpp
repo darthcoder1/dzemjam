@@ -52,6 +52,10 @@ void AHeistJamPlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MoveY");
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AHeistJamPlayerController::OnFirePressed);
 	InputComponent->BindAction("Fire", IE_Released, this, &AHeistJamPlayerController::OnFireReleased);
+	InputComponent->BindAction("QT_Face_Up", IE_Pressed, this, &AHeistJamPlayerController::OnUpPressed);
+	InputComponent->BindAction("QT_Face_Down", IE_Pressed, this, &AHeistJamPlayerController::OnDownPressed);
+	InputComponent->BindAction("QT_Face_Left", IE_Pressed, this, &AHeistJamPlayerController::OnLeftPressed);
+	InputComponent->BindAction("QT_Face_Right", IE_Pressed, this, &AHeistJamPlayerController::OnRightPressed);
 	InputComponent->BindAction("Interact", IE_Pressed, this, &AHeistJamPlayerController::OnInteractPressed);
 	InputComponent->BindAction("Interact", IE_Released, this, &AHeistJamPlayerController::OnInteractReleased);
 }
@@ -82,4 +86,20 @@ void AHeistJamPlayerController::OnInteractPressed()
 void AHeistJamPlayerController::OnInteractReleased()
 {
 	OnInteractReleasedCallback.Broadcast();
+}
+void AHeistJamPlayerController::OnUpPressed() 
+{
+	OnQuickTimeEventPressedUp.Broadcast();
+}
+void AHeistJamPlayerController::OnDownPressed() 
+{
+	OnQuickTimeEventPressedDown.Broadcast();
+}
+void AHeistJamPlayerController::OnRightPressed() 
+{
+	OnQuickTimeEventPressedRight.Broadcast();
+}
+void AHeistJamPlayerController::OnLeftPressed() 
+{
+	OnQuickTimeEventPressedLeft.Broadcast();
 }

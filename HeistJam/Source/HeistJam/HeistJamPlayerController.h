@@ -14,6 +14,7 @@ class AHeistJamPlayerController : public APlayerController
 public:
 	AHeistJamPlayerController();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQuickTimeEventPressedSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractSignature);
 protected:
 
@@ -22,6 +23,14 @@ protected:
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractSignature OnInteractReleasedCallback;
 
+	UPROPERTY(BlueprintAssignable)
+		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedUp;
+	UPROPERTY(BlueprintAssignable)
+		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedDown;
+	UPROPERTY(BlueprintAssignable)
+		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedRight;
+	UPROPERTY(BlueprintAssignable)
+		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedLeft;
 	float Speed;
 	FVector VelocityInput;
 	
@@ -48,6 +57,10 @@ protected:
 	void OnFireReleased();
 	void OnInteractPressed();
 	void OnInteractReleased();
+	void OnUpPressed();
+	void OnDownPressed();
+	void OnRightPressed();
+	void OnLeftPressed();
 };
 
 
