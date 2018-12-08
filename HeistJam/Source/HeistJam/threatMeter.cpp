@@ -20,17 +20,24 @@ void AthreatMeter::BeginPlay()
 }
 
 void AthreatMeter::ThreatLimitReached() {
-	if (threat >= threatLimit) 
-		{
-		OnAlarmTriggered.Broadcast();
-		}
-	}
+}
 void AthreatMeter::IncreaseThreat(float raiseAmount) {
 	threat += raiseAmount;
-	OnThreatChanged.Broadcast(threat);
 }
 
+void AthreatMeter::OnRep_threat() {
+	OnThreatChanged.Broadcast(threat);
+	if (threat >= threatLimit)
+	{
+		OnAlarmTriggered.Broadcast();
+	}
 
+}
+void AthreatMeter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AthreatMeter, threat);
+}
 // Called every frame
 void AthreatMeter::Tick(float DeltaTime)
 {

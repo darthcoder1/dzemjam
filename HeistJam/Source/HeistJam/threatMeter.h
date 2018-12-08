@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
 #include "threatMeter.generated.h"
 
 UCLASS(BlueprintType, Blueprintable)
@@ -18,9 +19,11 @@ public:
 	void setThreat(float threat) { this->threat = threat; }
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Threat")
 		float threatLimit;
-	UPROPERTY(BlueprintReadWrite, Category = "Threat")
+	UPROPERTY(BlueprintReadWrite, Category = "Threat", ReplicatedUsing=OnRep_threat)
 		float threat;
-	UFUNCTION(BlueprintCallable, Category = "Threat")
+	UFUNCTION()
+		void OnRep_threat();
+	UFUNCTION(BlueprintCallable)
 		void IncreaseThreat(float raiseAmount);
 	UFUNCTION(BlueprintCallable, Category = "Threat")
 		void ThreatLimitReached();
@@ -39,6 +42,13 @@ protected:
 
 public:	
 	// Called every frame
+
+	
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+
+
+
+
 	virtual void Tick(float DeltaTime) override;
 
 };
