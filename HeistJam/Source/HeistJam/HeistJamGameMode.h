@@ -10,8 +10,19 @@ class AHeistJamGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APawn> SpeedyPawnClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APawn> BulkyPawnClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APawn> HackyPawnClass;
+
 public:
 	AHeistJamGameMode();
+
+	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
 };
 
 

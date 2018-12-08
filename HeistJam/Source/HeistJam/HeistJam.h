@@ -12,5 +12,9 @@ enum class ECharacterClass : uint8
 	None,
 	Bulky,
 	Speedy,
-	Hacky
+	Hacky,
+
+	Fusion_BulkySpeedy,
+	Fusion_BuldyHacky,
+	Fusion_SpeedyHacky,
 };

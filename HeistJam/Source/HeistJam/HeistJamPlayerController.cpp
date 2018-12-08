@@ -58,7 +58,7 @@ void AHeistJamPlayerController::SetupInputComponent()
 
 void AHeistJamPlayerController::OnFirePressed()
 {
-	if (!bIsInteracting)
+	if (!bIsInteracting && GetPawn())
 	{
 		bIsFiring = true;
 		GetPawn()->PawnStartFire(1);
@@ -67,7 +67,7 @@ void AHeistJamPlayerController::OnFirePressed()
 
 void AHeistJamPlayerController::OnFireReleased()
 {
-	if (!bIsInteracting)
+	if (!bIsInteracting && GetPawn())
 	{
 		bIsFiring = false;
 		GetPawn()->PawnStartFire(0);
