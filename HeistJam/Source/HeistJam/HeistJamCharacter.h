@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HeistWeapon.h"
 #include "GameFramework/Character.h"
 #include "HeistJamCharacter.generated.h"
 
@@ -16,6 +17,18 @@ public:
 
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AHeistWeapon> WeaponClass;
+
+	UPROPERTY(Transient)
+	AHeistWeapon* WeaponInstance;
+
+
+
+	virtual void BeginPlay() override;
+
+	virtual void PawnStartFire(uint8 FireModeNum) override;
 
 	/** Returns TopDownCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
@@ -36,5 +49,6 @@ private:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* CursorToWorld;
+
 };
 

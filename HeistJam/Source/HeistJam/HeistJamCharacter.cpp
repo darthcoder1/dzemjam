@@ -57,6 +57,25 @@ AHeistJamCharacter::AHeistJamCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
+
+void AHeistJamCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FTransform transform = GetTransform();
+
+	WeaponInstance = Cast<AHeistWeapon>(GetWorld()->SpawnActor(WeaponClass));
+	WeaponInstance->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+}
+
+void AHeistJamCharacter::PawnStartFire(uint8 FireModeNum)
+{
+	if (WeaponInstance)
+	{
+		WeaponInstance->StartFire(FireModeNum);
+	}
+}
+
 void AHeistJamCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);

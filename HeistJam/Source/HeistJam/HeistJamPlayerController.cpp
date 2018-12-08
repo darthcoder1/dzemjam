@@ -53,11 +53,13 @@ void AHeistJamPlayerController::SetupInputComponent()
 void AHeistJamPlayerController::OnFirePressed()
 {
 	bIsFiring = true;
+	GetPawn()->PawnStartFire(1);
 }
 
 void AHeistJamPlayerController::OnFireReleased ()
 {
 	bIsFiring = false;
+	GetPawn()->PawnStartFire(0);
 }
 
 void AHeistJamPlayerController::OnInteractPressed()
