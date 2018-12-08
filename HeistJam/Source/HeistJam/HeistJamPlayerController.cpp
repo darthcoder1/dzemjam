@@ -7,6 +7,9 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "HeistJamCharacter.h"
 #include "Engine/World.h"
+#include "Engine/Classes/Kismet/GameplayStatics.h"
+#include "AIModule/Classes/AIController.h"
+#include "UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHeistController, Log, All);
 
@@ -19,29 +22,217 @@ AHeistJamPlayerController::AHeistJamPlayerController()
 	bIsFiring = false;
 	bIsInteracting = false;
 	Speed = 20.0f;
+
+	MaxFusionDistance = 100.0f;
+}
+
+
+void AHeistJamPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AHeistJamPlayerController, InFusionWith);
+	DOREPLIFETIME(AHeistJamPlayerController, FusionPawn);
 }
 
 void AHeistJamPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 	HandleInput(DeltaTime);
+	HandleFusion(DeltaTime);
 }
 
 void AHeistJamPlayerController::HandleInput(float DeltaTime)
 {
-	if (!bIsInteracting)
+	if (!bIsInteracting && GetPawn())
 	{
 		VelocityInput = FVector::ZeroVector;
 		VelocityInput.X = InputComponent->GetAxisValue("MoveX");
 		VelocityInput.Y = InputComponent->GetAxisValue("MoveY");
 
-		if (GetPawn())
+		if (FusionPawn)
+		{
+			SERVER_AddFusionPawnMovement(VelocityInput * 0.5f);
+		}
+		else
 		{
 			GetPawn()->AddMovementInput(VelocityInput);
 		}
 	}
 }
 
+void AHeistJamPlayerController::HandleFusion(float DeltaTime)
+{
+	AHeistJamCharacter* me = GetCharacterPawn();
+
+	if (me != NULL && me->RequestsFusionWith != NULL && me == me->RequestsFusionWith->RequestsFusionWith && InFusionWith == NULL)
+	{
+		UE_LOG(LogHeistController, Log, TEXT("Fusion for %s and %s initiated"), *me->GetName(), *me->RequestsFusionWith->GetName());
+		InFusionWith = me->RequestsFusionWith;
+
+		InitiateFusion();
+		SERVER_InitiateFusion(InFusionWith);
+	}
+	else if (me != NULL && InFusionWith && (me->RequestsFusionWith == NULL || InFusionWith->RequestsFusionWith != me))
+	{
+		AbortFusion();
+		SERVER_AbortFusion();
+		UE_LOG(LogHeistController, Log, TEXT("Fusion between %s and %s stopped"), *me->GetName(), *InFusionWith->GetName());
+		InFusionWith = NULL;
+	}
+}
+
+void AHeistJamPlayerController::InitiateFusion()
+{
+	GetPawn()->SetActorEnableCollision(false);
+
+	if (InFusionWith)
+	{
+		InFusionWith->SetActorEnableCollision(false);
+	}
+}
+
+void AHeistJamPlayerController::SERVER_InitiateFusion_Implementation(AHeistJamCharacter* fusionWith)
+{
+	static AHeistJamCharacter* s_stupidHack = NULL;
+	
+	InFusionWith = fusionWith;
+
+	GetPawn()->SetActorEnableCollision(false);
+	
+	if (s_stupidHack != NULL)
+	{
+		FusionPawn = s_stupidHack;
+		s_stupidHack = NULL;
+	}
+	else
+	{
+		FVector loc = (GetPawn()->GetTransform().GetLocation() + InFusionWith->GetTransform().GetLocation()) / 2;
+		FRotator rot = GetPawn()->GetTransform().GetRotation().Rotator();
+
+		FActorSpawnParameters args;
+		args.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		UClass* fusionPawnClass = GetFusionPawnClass(GetCharacterPawn()->CharacterType, InFusionWith->CharacterType);
+
+		FusionPawn = GetWorld()->SpawnActor<AHeistJamCharacter>(fusionPawnClass, loc, rot, args);
+		
+		AAIController* ctrl = GetWorld()->SpawnActor<AAIController>(AAIController::StaticClass());
+		ctrl->Possess(FusionPawn);
+
+		s_stupidHack = FusionPawn;
+	}
+
+	GetPawn()->AttachToActor(FusionPawn, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+}
+
+bool AHeistJamPlayerController::SERVER_InitiateFusion_Validate(AHeistJamCharacter* fusionWith) { return true; }
+
+void AHeistJamPlayerController::SERVER_AddFusionPawnMovement_Implementation(FVector vec)
+{
+	if (FusionPawn)
+		FusionPawn->AddMovementInput(vec);
+}
+
+bool AHeistJamPlayerController::SERVER_AddFusionPawnMovement_Validate(FVector vec) { return true; }
+
+void AHeistJamPlayerController::AbortFusion()
+{
+	if (FusionPawn)
+		FusionPawn->SetActorEnableCollision(false);
+
+	FVector offset = FVector::CrossProduct(GetPawn()->GetTransform().GetRotation().GetForwardVector().GetUnsafeNormal(), FVector::UpVector);
+
+	GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	GetPawn()->SetActorLocation(GetPawn()->GetActorLocation() + offset * 10.0f + FVector::UpVector * 50.0f);
+	GetPawn()->SetActorEnableCollision(true);
+
+	if (InFusionWith)
+	{
+		
+		InFusionWith->SetActorLocation(InFusionWith->GetActorLocation() + offset * -10.0f + FVector::UpVector * 50.0f);
+		InFusionWith->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		InFusionWith->SetActorEnableCollision(true);
+	}
+}
+
+void AHeistJamPlayerController::SERVER_AbortFusion_Implementation()
+{
+	FVector offset = FVector::CrossProduct(GetPawn()->GetTransform().GetRotation().GetForwardVector().GetUnsafeNormal(), FVector::UpVector);
+	
+	if (FusionPawn)
+	{
+		FusionPawn->SetActorEnableCollision(false);
+	}
+
+	GetPawn()->SetActorEnableCollision(true);
+	GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	GetPawn()->SetActorLocation(GetPawn()->GetActorLocation() + offset * 10.0f + FVector::UpVector * 50.0f);
+	
+	if (InFusionWith)
+	{
+		InFusionWith->SetActorEnableCollision(true);
+		InFusionWith->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		InFusionWith->SetActorLocation(InFusionWith->GetActorLocation() + offset * -10.0f + FVector::UpVector * 50.0f);
+	}
+
+	if (FusionPawn)
+		FusionPawn->Destroy();
+
+	FusionPawn = NULL;
+}
+
+bool AHeistJamPlayerController::SERVER_AbortFusion_Validate() { return true; }
+
+AHeistJamCharacter * AHeistJamPlayerController::GetNearestOtherPawn(float maxDist)
+{
+	TArray<AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHeistJamCharacter::StaticClass(), actors);
+
+	AHeistJamCharacter* nearestChar = NULL;
+	float nearestCharDistSqr = FLT_MAX;
+
+	const float maxDistSqr = maxDist * maxDist;
+
+	FVector myPos = GetPawn()->GetTransform().GetLocation();
+
+	for (int i = 0; i < actors.Num(); ++i)
+	{
+		if (actors[i] == GetPawn())
+			continue;
+
+		float sqrDist = FVector::DistSquared(actors[i]->GetTransform().GetLocation(), myPos);
+
+		if (sqrDist < maxDistSqr && sqrDist < nearestCharDistSqr)
+		{
+			nearestChar = Cast<AHeistJamCharacter>(actors[i]);
+			nearestCharDistSqr = sqrDist;
+		}
+	}
+
+	return nearestChar;
+}
+
+
+UClass* AHeistJamPlayerController::GetFusionPawnClass(ECharacterClass charClass1, ECharacterClass charClass2)
+{
+	if (charClass1 == ECharacterClass::Bulky && charClass2 == ECharacterClass::Speedy ||
+		charClass1 == ECharacterClass::Speedy && charClass2 == ECharacterClass::Bulky)
+	{
+		return FusionBulkySpeedyPawnClass;
+	}
+	else if (charClass1 == ECharacterClass::Bulky && charClass2 == ECharacterClass::Hacky ||
+			 charClass1 == ECharacterClass::Hacky && charClass2 == ECharacterClass::Bulky)
+	{
+		return FusionBulkyHackyPawnClass;
+	}
+	else if (charClass1 == ECharacterClass::Speedy && charClass2 == ECharacterClass::Hacky ||
+			 charClass1 == ECharacterClass::Hacky && charClass2 == ECharacterClass::Speedy)
+	{
+		return FusionSpeedyHackyPawnClass;
+	}
+
+	return NULL;
+}
 
 void AHeistJamPlayerController::SetupInputComponent()
 {
@@ -58,6 +249,9 @@ void AHeistJamPlayerController::SetupInputComponent()
 	InputComponent->BindAction("QT_Face_Right", IE_Pressed, this, &AHeistJamPlayerController::OnRightPressed);
 	InputComponent->BindAction("Interact", IE_Pressed, this, &AHeistJamPlayerController::OnInteractPressed);
 	InputComponent->BindAction("Interact", IE_Released, this, &AHeistJamPlayerController::OnInteractReleased);
+
+	InputComponent->BindAction("Fusion", IE_Pressed, this, &AHeistJamPlayerController::OnFusionPressed);
+	InputComponent->BindAction("Fusion", IE_Released, this, &AHeistJamPlayerController::OnFusionReleased);
 }
 
 void AHeistJamPlayerController::OnFirePressed()
@@ -86,7 +280,7 @@ void AHeistJamPlayerController::OnInteractPressed()
 void AHeistJamPlayerController::OnInteractReleased()
 {
 	OnInteractReleasedCallback.Broadcast();
-}
+
 void AHeistJamPlayerController::OnUpPressed() 
 {
 	OnQuickTimeEventPressedUp.Broadcast();
@@ -103,3 +297,29 @@ void AHeistJamPlayerController::OnLeftPressed()
 {
 	OnQuickTimeEventPressedLeft.Broadcast();
 }
+void AHeistJamPlayerController::OnFusionPressed()
+{
+	AHeistJamCharacter* me = GetCharacterPawn();
+
+	if (me && me->RequestsFusionWith == NULL)
+	{
+		AHeistJamCharacter* nearestNeighbor = GetNearestOtherPawn(MaxFusionDistance);
+		me->SERVER_RequestFusionWith(nearestNeighbor);
+		
+		if (me->RequestsFusionWith)
+		{
+			UE_LOG(LogHeistController, Log, TEXT("Request Fusion with %s"), *me->RequestsFusionWith->GetName());
+		}
+	}
+	else if (me)
+	{
+		me->SERVER_RequestFusionWith(NULL);
+		UE_LOG(LogHeistController, Log, TEXT("Disable fusion request"));
+	}
+}
+
+void AHeistJamPlayerController::OnFusionReleased()
+{
+	
+}
+

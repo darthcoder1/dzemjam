@@ -33,6 +33,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MaxHealth;
+
+	UPROPERTY(Replicated)
+	AHeistJamCharacter* RequestsFusionWith;
 	
 	virtual void BeginPlay() override;
 
@@ -44,6 +47,11 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SERVER_RequestFusionWith(AHeistJamCharacter* requestFusionWith);
+
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 
 private:
 	/** Top down camera */

@@ -11,6 +11,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "UnrealNetwork.h"
 
 AHeistJamCharacter::AHeistJamCharacter()
 {
@@ -60,6 +61,21 @@ AHeistJamCharacter::AHeistJamCharacter()
 	Health = MaxHealth;
 }
 
+void AHeistJamCharacter::SERVER_RequestFusionWith_Implementation(AHeistJamCharacter* requestFusionWith)
+{
+	RequestsFusionWith = requestFusionWith;
+}
+
+bool AHeistJamCharacter::SERVER_RequestFusionWith_Validate(AHeistJamCharacter* requestFusionWith)
+{
+	return true;
+}
+
+void AHeistJamCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AHeistJamCharacter, RequestsFusionWith);
+}
 
 void AHeistJamCharacter::BeginPlay()
 {

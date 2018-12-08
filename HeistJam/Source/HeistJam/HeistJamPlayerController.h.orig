@@ -24,6 +24,7 @@ protected:
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractSignature OnInteractReleasedCallback;
 
+<<<<<<< HEAD
 	UPROPERTY(BlueprintAssignable)
 		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedUp;
 	UPROPERTY(BlueprintAssignable)
@@ -32,6 +33,7 @@ protected:
 		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedRight;
 	UPROPERTY(BlueprintAssignable)
 		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedLeft;
+=======
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<APawn> FusionBulkySpeedyPawnClass;
 	UPROPERTY(EditDefaultsOnly)
@@ -48,6 +50,7 @@ protected:
 	UPROPERTY(Transient)
 	AHeistJamCharacter* OriginalPawnWhenFusion ;
 
+>>>>>>> First steps towards Fusion
 	float Speed;
 	FVector VelocityInput;
 	
@@ -98,12 +101,15 @@ protected:
 	void OnFireReleased();
 	void OnInteractPressed();
 	void OnInteractReleased();
+<<<<<<< HEAD
 	void OnUpPressed();
 	void OnDownPressed();
 	void OnRightPressed();
 	void OnLeftPressed();
+=======
 	void OnFusionPressed();
 	void OnFusionReleased();
+>>>>>>> First steps towards Fusion
 };
 
 
