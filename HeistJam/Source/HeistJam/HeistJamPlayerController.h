@@ -14,7 +14,14 @@ class AHeistJamPlayerController : public APlayerController
 public:
 	AHeistJamPlayerController();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractSignature);
 protected:
+
+
+	UPROPERTY(BlueprintAssignable)
+	FOnInteractSignature OnInteractPressedCallback;
+	UPROPERTY(BlueprintAssignable)
+	FOnInteractSignature OnInteractReleasedCallback;
 
 	float Speed;
 	FVector VelocityInput;

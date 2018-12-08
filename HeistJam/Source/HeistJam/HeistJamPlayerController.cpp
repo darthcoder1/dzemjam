@@ -63,9 +63,11 @@ void AHeistJamPlayerController::OnFireReleased ()
 void AHeistJamPlayerController::OnInteractPressed()
 {
 	bIsInteracting = true;
+	OnInteractPressedCallback.Broadcast();
 }
 
 void AHeistJamPlayerController::OnInteractReleased()
 {
 	bIsInteracting = false;
+	OnInteractReleasedCallback.Broadcast();
 }
