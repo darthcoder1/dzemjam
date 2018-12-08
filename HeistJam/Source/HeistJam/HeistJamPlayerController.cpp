@@ -29,11 +29,17 @@ void AHeistJamPlayerController::PlayerTick(float DeltaTime)
 
 void AHeistJamPlayerController::HandleInput(float DeltaTime)
 {
-	VelocityInput = FVector::ZeroVector;
-	VelocityInput.X = InputComponent->GetAxisValue("MoveX");
-	VelocityInput.Y = InputComponent->GetAxisValue("MoveY");
-	
-	GetPawn()->AddMovementInput(VelocityInput);
+	if (!bIsInteracting)
+	{
+		VelocityInput = FVector::ZeroVector;
+		VelocityInput.X = InputComponent->GetAxisValue("MoveX");
+		VelocityInput.Y = InputComponent->GetAxisValue("MoveY");
+
+		if (GetPawn())
+		{
+			GetPawn()->AddMovementInput(VelocityInput);
+		}
+	}
 }
 
 
@@ -52,24 +58,28 @@ void AHeistJamPlayerController::SetupInputComponent()
 
 void AHeistJamPlayerController::OnFirePressed()
 {
-	bIsFiring = true;
-	GetPawn()->PawnStartFire(1);
+	if (!bIsInteracting)
+	{
+		bIsFiring = true;
+		GetPawn()->PawnStartFire(1);
+	}
 }
 
-void AHeistJamPlayerController::OnFireReleased ()
+void AHeistJamPlayerController::OnFireReleased()
 {
-	bIsFiring = false;
-	GetPawn()->PawnStartFire(0);
+	if (!bIsInteracting)
+	{
+		bIsFiring = false;
+		GetPawn()->PawnStartFire(0);
+	}
 }
 
 void AHeistJamPlayerController::OnInteractPressed()
 {
-	bIsInteracting = true;
 	OnInteractPressedCallback.Broadcast();
 }
 
 void AHeistJamPlayerController::OnInteractReleased()
 {
-	bIsInteracting = false;
 	OnInteractReleasedCallback.Broadcast();
 }

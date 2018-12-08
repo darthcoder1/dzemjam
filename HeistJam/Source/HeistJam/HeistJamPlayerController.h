@@ -27,7 +27,10 @@ protected:
 	FVector VelocityInput;
 	
 	uint32 bIsFiring : 1;
-	uint32 bIsInteracting : 1;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsInteracting = false;
+
 	uint32 bMoveToMouseCursor : 1;
 
 	// Begin PlayerController interface
