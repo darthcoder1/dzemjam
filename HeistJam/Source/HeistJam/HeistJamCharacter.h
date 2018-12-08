@@ -25,7 +25,7 @@ public:
 	UPROPERTY(Transient)
 	AHeistWeapon* WeaponInstance;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	ECharacterClass CharacterType;
 
 	UPROPERTY(BlueprintReadWrite)
