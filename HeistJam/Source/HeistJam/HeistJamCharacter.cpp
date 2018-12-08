@@ -55,6 +55,9 @@ AHeistJamCharacter::AHeistJamCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	MaxHealth = 100.0f;
+	Health = MaxHealth;
 }
 
 
@@ -64,7 +67,10 @@ void AHeistJamCharacter::BeginPlay()
 
 	FTransform transform = GetTransform();
 
-	WeaponInstance = Cast<AHeistWeapon>(GetWorld()->SpawnActor(WeaponClass));
+	FActorSpawnParameters args;
+	args.Owner = this;
+
+	WeaponInstance = GetWorld()->SpawnActor<AHeistWeapon>(WeaponClass, args);
 	WeaponInstance->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
 }
 

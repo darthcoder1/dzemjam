@@ -24,8 +24,12 @@ public:
 	UPROPERTY(Transient)
 	AHeistWeapon* WeaponInstance;
 
+	UPROPERTY(BlueprintReadWrite)
+	float Health;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MaxHealth;
+	
 	virtual void BeginPlay() override;
 
 	virtual void PawnStartFire(uint8 FireModeNum) override;
