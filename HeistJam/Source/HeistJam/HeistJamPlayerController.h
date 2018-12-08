@@ -17,7 +17,6 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractSignature);
 protected:
 
-
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractSignature OnInteractPressedCallback;
 	UPROPERTY(BlueprintAssignable)
