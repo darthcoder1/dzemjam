@@ -212,6 +212,20 @@ void AHeistJamPlayerController::OnRep_IsTraitor()
 	}
 }
 
+void AHeistJamPlayerController::RestartMatch()
+{
+	SERVER_RestartMatch_Implementation();
+}
+
+void AHeistJamPlayerController::SERVER_RestartMatch_Implementation()
+{
+	//GetWorld()->ServerTravel(TEXT("TopDownExampleMap"));
+	GetWorld()->SeamlessTravel(TEXT("/TopDownCPP/Maps/TopDownExampleMap"));
+	//UGameplayStatics::OpenLevel(GetWorld(), TEXT("/TopDownCPP/Maps/TopDownExampleMap"));
+}
+
+bool AHeistJamPlayerController::SERVER_RestartMatch_Validate() { return true; }
+
 AHeistJamCharacter * AHeistJamPlayerController::GetNearestOtherPawn(float maxDist)
 {
 	TArray<AActor*> actors;

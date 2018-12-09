@@ -105,6 +105,11 @@ public:
 	UFUNCTION()
 	void OnRep_IsTraitor();
 
+	UFUNCTION(Exec)
+	void RestartMatch();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SERVER_RestartMatch();
 
 	AHeistJamCharacter* GetNearestOtherPawn(float maxDist);
 
