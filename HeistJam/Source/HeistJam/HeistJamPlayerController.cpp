@@ -299,22 +299,6 @@ void AHeistJamPlayerController::OnInteractReleased()
 {
 	OnInteractReleasedCallback.Broadcast();
 }
-void AHeistJamPlayerController::OnUpPressed() 
-{
-	OnQuickTimeEventPressedUp.Broadcast();
-}
-void AHeistJamPlayerController::OnDownPressed() 
-{
-	OnQuickTimeEventPressedDown.Broadcast();
-}
-void AHeistJamPlayerController::OnRightPressed() 
-{
-	OnQuickTimeEventPressedRight.Broadcast();
-}
-void AHeistJamPlayerController::OnLeftPressed() 
-{
-	OnQuickTimeEventPressedLeft.Broadcast();
-}
 
 void AHeistJamPlayerController::OnUpPressed() 
 {
@@ -348,9 +332,10 @@ void AHeistJamPlayerController::OnFusionPressed()
 void AHeistJamPlayerController::OnFusionReleased()
 {
 	AHeistJamCharacter* me = GetCharacterPawn();
-	
+
 	if (me)
 	{
 		me->SERVER_RequestFusionWith(NULL);
 		UE_LOG(LogHeistController, Log, TEXT("SERVER_RequestFusionWith(NULL)"));
-	}
+	}
+}
