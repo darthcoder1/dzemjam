@@ -5,6 +5,7 @@
 #include "HeistJamCharacter.h"
 #include "HeistPlayerStart.h"
 #include "GameFramework/PlayerState.h"
+#include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
 AHeistJamGameMode::AHeistJamGameMode()
@@ -42,6 +43,7 @@ AHeistJamGameMode::AHeistJamGameMode()
 
 	AlarmTriggered = false;
 	TimeSinceMatchStart = 0.0f;
+	TraitorPC = NULL;
 
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	PrimaryActorTick.bCanEverTick = true;
@@ -142,6 +144,17 @@ void AHeistJamGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (!TraitorPC)
+	{
+		TraitorPC = PickATraitor();
+
+		if (TraitorPC)
+		{
+			FTimerHandle hndl;
+			GetWorld()->GetTimerManager().SetTimer(hndl, [=]() { TraitorPC->bIsTraitor = true; }, 3.0, false);
+		}
+	}
+
 	TimeSinceMatchStart += DeltaSeconds;
 
 	if (TimeSinceMatchStart > InfiltrationTime && !AlarmTriggered)
@@ -166,4 +179,28 @@ void AHeistJamGameMode::Tick(float DeltaSeconds)
 			pc->TimerCountdown = timeLeft;
 		}
 	}
+}
+
+AHeistJamPlayerController* AHeistJamGameMode::PickATraitor()
+{
+	TArray<AHeistJamPlayerController*> Players;
+
+	// start human players first
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (PlayerController)
+		{
+			AHeistJamPlayerController* pc = Cast<AHeistJamPlayerController>(PlayerController);
+			if (pc)
+				Players.Add(pc);
+		}
+	}
+
+	if (Players.Num() >= 3)
+	{
+		int idx = FMath::RandRange(0, Players.Num() - 1);
+		return Cast<AHeistJamPlayerController>(Players[idx]);
+	}
+	return nullptr;
 }

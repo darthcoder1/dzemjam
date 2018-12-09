@@ -33,6 +33,7 @@ void AHeistJamPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProp
 	DOREPLIFETIME(AHeistJamPlayerController, InFusionWith);
 	DOREPLIFETIME(AHeistJamPlayerController, FusionPawn);
 	DOREPLIFETIME(AHeistJamPlayerController, TimerCountdown);
+	DOREPLIFETIME(AHeistJamPlayerController, bIsTraitor);
 }
 
 bool AHeistJamPlayerController::CanInitiateFusion()
@@ -202,6 +203,14 @@ void AHeistJamPlayerController::SERVER_AbortFusion_Implementation()
 }
 
 bool AHeistJamPlayerController::SERVER_AbortFusion_Validate() { return true; }
+
+void AHeistJamPlayerController::OnRep_IsTraitor()
+{
+	if (bIsTraitor)
+	{
+		OnIsTraitor.Broadcast();
+	}
+}
 
 AHeistJamCharacter * AHeistJamPlayerController::GetNearestOtherPawn(float maxDist)
 {

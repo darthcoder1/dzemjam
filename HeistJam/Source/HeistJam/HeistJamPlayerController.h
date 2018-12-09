@@ -17,11 +17,15 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQuickTimeEventPressedSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnIsTraitorSignature);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractSignature OnInteractPressedCallback;
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractSignature OnInteractReleasedCallback;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnIsTraitorSignature OnIsTraitor;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedUp;
@@ -43,6 +47,10 @@ public:
 	float FusionCooldown;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxFusionDistance;
+
+	UPROPERTY(Replicated, BlueprintReadWrite, ReplicatedUsing=OnRep_IsTraitor)
+	bool bIsTraitor;
+	
 
 	UPROPERTY(Replicated)
 	AHeistJamCharacter* FusionPawn;
@@ -93,6 +101,9 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void SERVER_AbortFusion();
+
+	UFUNCTION()
+	void OnRep_IsTraitor();
 
 
 	AHeistJamCharacter* GetNearestOtherPawn(float maxDist);

@@ -32,12 +32,18 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool AlarmTriggered;
 
+	UPROPERTY(Transient)
+	class AHeistJamPlayerController* TraitorPC;
+
 	AHeistJamGameMode();
 
 	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+
+
+	class AHeistJamPlayerController* PickATraitor();
 };
 
 
