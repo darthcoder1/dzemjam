@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
+#include "EngineUtils.h"
 
 AHeistJamGameMode::AHeistJamGameMode()
 {
@@ -130,6 +131,42 @@ void AHeistJamGameMode::RestartPlayerAtPlayerStart(AController * NewPlayer, AAct
 
 		FinishRestartPlayer(NewPlayer, SpawnRotation);
 	}
+}
+
+void AHeistJamGameMode::RestartPlayer(AController* NewPlayer)
+{
+	if (NewPlayer == nullptr || NewPlayer->IsPendingKillPending())
+	{
+		return;
+	}
+
+	AActor* StartSpot = FindPlayerStart(NewPlayer);
+
+	// If incoming start is specified, then just use it
+	const FName IncomingPlayerStartTag = FName(*FString(TEXT("PlayerStart")));
+	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+	{
+		APlayerStart* Start = *It;
+		if (Start && Start->PlayerStartTag == IncomingPlayerStartTag)
+		{
+			StartSpot = Start;
+			Start->PlayerStartTag = FName(*FString(TEXT("PlayerStartUsed")));
+			break;
+		}
+	}
+
+	// If a start spot wasn't found,
+	if (StartSpot == nullptr)
+	{
+		// Check for a previously assigned spot
+		if (NewPlayer->StartSpot != nullptr)
+		{
+			StartSpot = NewPlayer->StartSpot.Get();
+			UE_LOG(LogGameMode, Warning, TEXT("RestartPlayer: Player start not found, using last start spot"));
+		}
+	}
+
+	RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
 }
 
 void AHeistJamGameMode::BeginPlay()

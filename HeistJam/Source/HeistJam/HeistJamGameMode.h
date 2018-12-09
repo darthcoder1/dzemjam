@@ -38,6 +38,7 @@ public:
 	AHeistJamGameMode();
 
 	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
+	virtual void RestartPlayer(AController* NewPlayer) override;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
