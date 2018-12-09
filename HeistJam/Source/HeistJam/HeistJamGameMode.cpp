@@ -241,3 +241,10 @@ AHeistJamPlayerController* AHeistJamGameMode::PickATraitor()
 	}
 	return nullptr;
 }
+
+void AHeistJamGameMode::ResetTimer()
+{
+	TimeSinceMatchStart = 0.0f;
+}
+
+void SERVER_RestartMatch();

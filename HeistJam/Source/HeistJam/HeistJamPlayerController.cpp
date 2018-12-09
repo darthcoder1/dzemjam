@@ -10,6 +10,8 @@
 #include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "AIModule/Classes/AIController.h"
 #include "UnrealNetwork.h"
+#include "GameFramework/GameModeBase.h"
+#include "HeistJamGameMode.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHeistController, Log, All);
 
@@ -210,6 +212,8 @@ void AHeistJamPlayerController::OnRep_IsTraitor()
 	{
 		OnIsTraitor.Broadcast();
 	}
+
+	SERVER_RestartMatch();
 }
 
 void AHeistJamPlayerController::RestartMatch()
@@ -219,9 +223,12 @@ void AHeistJamPlayerController::RestartMatch()
 
 void AHeistJamPlayerController::SERVER_RestartMatch_Implementation()
 {
-	//GetWorld()->ServerTravel(TEXT("TopDownExampleMap"));
-	GetWorld()->SeamlessTravel(TEXT("/TopDownCPP/Maps/TopDownExampleMap"));
-	//UGameplayStatics::OpenLevel(GetWorld(), TEXT("/TopDownCPP/Maps/TopDownExampleMap"));
+	//GetWorld()->SeamlessTravel(TEXT("/TopDownCPP/Maps/TopDownExampleMap"));
+
+	AHeistJamGameMode* gm = Cast<AHeistJamGameMode>(GetWorld()->GetAuthGameMode());
+
+	if (gm)
+		gm->ResetTimer();
 }
 
 bool AHeistJamPlayerController::SERVER_RestartMatch_Validate() { return true; }
