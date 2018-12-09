@@ -17,7 +17,6 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQuickTimeEventPressedSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractSignature);
-protected:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractSignature OnInteractPressedCallback;
@@ -25,13 +24,13 @@ protected:
 	FOnInteractSignature OnInteractReleasedCallback;
 
 	UPROPERTY(BlueprintAssignable)
-		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedUp;
+	FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedUp;
 	UPROPERTY(BlueprintAssignable)
-		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedDown;
+	FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedDown;
 	UPROPERTY(BlueprintAssignable)
-		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedRight;
+	FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedRight;
 	UPROPERTY(BlueprintAssignable)
-		FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedLeft;
+	FOnQuickTimeEventPressedSignature OnQuickTimeEventPressedLeft;
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<APawn> FusionBulkySpeedyPawnClass;
 	UPROPERTY(EditDefaultsOnly)
@@ -42,12 +41,17 @@ protected:
 	float MaxFusionDuration;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float FusionCooldown;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxFusionDistance;
 
 	UPROPERTY(Replicated)
 	AHeistJamCharacter* FusionPawn;
+	
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	float TimerCountdown;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString TimerCountdownString;
 
 	UPROPERTY(Transient)
 	AHeistJamCharacter* OriginalPawnWhenFusion ;

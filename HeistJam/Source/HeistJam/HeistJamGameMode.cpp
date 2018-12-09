@@ -39,6 +39,12 @@ AHeistJamGameMode::AHeistJamGameMode()
 	{
 		HackyPawnClass = HackyPawnBPClass.Class;
 	}
+
+	AlarmTriggered = false;
+	TimeSinceMatchStart = 0.0f;
+
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void AHeistJamGameMode::RestartPlayerAtPlayerStart(AController * NewPlayer, AActor * StartSpot)
@@ -121,5 +127,43 @@ void AHeistJamGameMode::RestartPlayerAtPlayerStart(AController * NewPlayer, AAct
 		InitStartSpot(StartSpot, NewPlayer);
 
 		FinishRestartPlayer(NewPlayer, SpawnRotation);
+	}
+}
+
+void AHeistJamGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	TimeSinceMatchStart = 0.0f;
+	AlarmTriggered = false;
+}
+
+void AHeistJamGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	TimeSinceMatchStart += DeltaSeconds;
+
+	if (TimeSinceMatchStart > InfiltrationTime && !AlarmTriggered)
+	{
+		AlarmTriggered = true;
+	}
+	else if (TimeSinceMatchStart > InfiltrationTime + EscapeTime)
+	{
+		//
+	}
+
+
+	float timeLeft = InfiltrationTime + EscapeTime - TimeSinceMatchStart;
+
+	// start human players first
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (PlayerController)
+		{
+			AHeistJamPlayerController* pc = Cast<AHeistJamPlayerController>(PlayerController);
+			pc->TimerCountdown = timeLeft;
+		}
 	}
 }

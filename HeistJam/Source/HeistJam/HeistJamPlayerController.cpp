@@ -32,6 +32,7 @@ void AHeistJamPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHeistJamPlayerController, InFusionWith);
 	DOREPLIFETIME(AHeistJamPlayerController, FusionPawn);
+	DOREPLIFETIME(AHeistJamPlayerController, TimerCountdown);
 }
 
 bool AHeistJamPlayerController::CanInitiateFusion()
@@ -44,6 +45,8 @@ void AHeistJamPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 	HandleInput(DeltaTime);
 	HandleFusion(DeltaTime);
+
+	TimerCountdownString = FString::Printf(TEXT("%d:%2d"), (int)TimerCountdown / 60, (int)TimerCountdown % 60);
 }
 
 void AHeistJamPlayerController::HandleInput(float DeltaTime)

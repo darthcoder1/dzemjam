@@ -20,9 +20,24 @@ class AHeistJamGameMode : public AGameModeBase
 	TSubclassOf<APawn> HackyPawnClass;
 
 public:
+	UPROPERTY(EditDefaultsOnly)
+	float InfiltrationTime;
+
+	UPROPERTY(EditDefaultsOnly)
+	float EscapeTime;
+
+	UPROPERTY(BlueprintReadWrite)
+	float TimeSinceMatchStart;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool AlarmTriggered;
+
 	AHeistJamGameMode();
 
 	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 };
 
 
