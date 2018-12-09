@@ -90,6 +90,17 @@ void AHeistJamCharacter::BeginPlay()
 	WeaponInstance->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
 }
 
+void AHeistJamCharacter::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	if (WeaponInstance)
+	{
+		WeaponInstance->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		WeaponInstance->Destroy();
+	}
+}
+
 void AHeistJamCharacter::PawnStartFire(uint8 FireModeNum)
 {
 	if (WeaponInstance)

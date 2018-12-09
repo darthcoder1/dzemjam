@@ -22,10 +22,10 @@ AHeistJamPlayerController::AHeistJamPlayerController()
 	bIsFiring = false;
 	bIsInteracting = false;
 	Speed = 20.0f;
-
 	MaxFusionDistance = 100.0f;
+	MaxFusionDuration = 10.0f;
+	TimeSinceFusion = 0.0f;
 }
-
 
 void AHeistJamPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
@@ -251,6 +251,7 @@ UClass* AHeistJamPlayerController::GetFusionPawnClass(ECharacterClass charClass1
 	return NULL;
 }
 
+
 void AHeistJamPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
@@ -297,6 +298,7 @@ void AHeistJamPlayerController::OnInteractPressed()
 void AHeistJamPlayerController::OnInteractReleased()
 {
 	OnInteractReleasedCallback.Broadcast();
+}
 
 void AHeistJamPlayerController::OnUpPressed() 
 {
@@ -337,4 +339,3 @@ void AHeistJamPlayerController::OnFusionReleased()
 		UE_LOG(LogHeistController, Log, TEXT("SERVER_RequestFusionWith(NULL)"));
 	}
 }
-

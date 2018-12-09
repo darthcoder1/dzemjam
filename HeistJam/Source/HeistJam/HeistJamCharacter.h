@@ -38,6 +38,7 @@ public:
 	AHeistJamCharacter* RequestsFusionWith;
 	
 	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
 
 	virtual void PawnStartFire(uint8 FireModeNum) override;
 

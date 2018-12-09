@@ -38,6 +38,10 @@ protected:
 	TSubclassOf<APawn> FusionBulkyHackyPawnClass;
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<APawn> FusionSpeedyHackyPawnClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MaxFusionDuration;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float FusionCooldown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxFusionDistance;
@@ -47,6 +51,8 @@ protected:
 
 	UPROPERTY(Transient)
 	AHeistJamCharacter* OriginalPawnWhenFusion ;
+
+	float TimeSinceFusion;
 
 	float Speed;
 	FVector VelocityInput;
